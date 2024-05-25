@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group
 from .forms import SignUpForm, CreateGroupForm
-from .models import Group
 
 def home(request):
     # Check to see if logging in
@@ -54,10 +54,9 @@ def register_user(request):
 
 def create_pickup_group(request):
     if request.method == 'POST':
-        Group.objects.create(
-            host = request.user,
-            group_name = request.POST.get('group_name'),
-        )
+        new_group, created = Group.objects.get_or_create(name=request.POST.get('group_name'))
+        print(new_group)
+        request.user.groups.add(new_group)
         return redirect('home')
     else:
         form = CreateGroupForm()
